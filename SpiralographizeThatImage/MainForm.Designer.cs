@@ -57,7 +57,7 @@ namespace SpiralographizeThatImage
 			this.Controls.Add(this.pictureBox1);
 			this.Name = "MainForm";
 			this.Text = "Spiralographize";
-			this.Shown += new System.EventHandler(this.Style2_Shown);
+			this.Shown += new System.EventHandler(this.MainForm_Shown);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.ResumeLayout(false);
 

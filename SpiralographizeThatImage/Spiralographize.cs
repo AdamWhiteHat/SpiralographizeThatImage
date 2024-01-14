@@ -7,36 +7,115 @@ namespace SpiralographizeThatImage
 {
 	public static class Spiralographize
 	{
-		public static LineSegment[] GetLineSegments(Bitmap image, int revolutionCount)
+		public static class ModulatingThickness
 		{
-			int width = image.Width;
-			int height = image.Height;
-
-			float minThickness = 1.0f;
-			float maxThickness = (((width + height) / 2.0f) / (revolutionCount * 2.0f));
-
-			int pointCount = (width + height) * (revolutionCount / 2);
-
-			LineSegment[] results = new LineSegment[pointCount];
-
-			float angle, scale, thickness;
-			for (int i = 0; i < pointCount; i++)
+			public static LineSegment[] GetLineSegments(Bitmap image, int revolutionCount)
 			{
-				angle = (float)(i * 2 * Math.PI / (pointCount / revolutionCount));
-				scale = 1 - (float)i / pointCount;
+				int width = image.Width;
+				int height = image.Height;
 
-				PointF point = new PointF();
-				point.X = (float)(width / 2 * (1 + scale * Math.Cos(angle)));
-				point.Y = (float)(height / 2 * (1 + scale * Math.Sin(angle)));
+				float minThickness = 1.0f;
+				float maxThickness = (((width + height) / 2.0f) / (revolutionCount * 2.0f));
 
-				Color pixel = image.GetPixel((int)Math.Min(width - 1, Math.Round(point.X)), (int)Math.Min(height - 1, Math.Round(point.Y)));
-				thickness = (float)Math.Round((1.0f - pixel.GetBrightness()) * maxThickness, 3);
+				int pointCount = (width + height) * (revolutionCount / 2);
 
-				results[i] = new LineSegment(point, thickness);
+				LineSegment[] results = new LineSegment[pointCount];
+
+				float angle, scale, thickness;
+				for (int i = 0; i < pointCount; i++)
+				{
+					angle = (float)(i * 2 * Math.PI / (pointCount / revolutionCount));
+					scale = 1 - (float)i / pointCount;
+
+					PointF point = new PointF();
+					point.X = (float)(width / 2 * (1 + scale * Math.Cos(angle)));
+					point.Y = (float)(height / 2 * (1 + scale * Math.Sin(angle)));
+
+					Color pixel = image.GetPixel((int)Math.Min(width - 1, Math.Round(point.X)), (int)Math.Min(height - 1, Math.Round(point.Y)));
+					thickness = (float)Math.Round((1.0f - pixel.GetBrightness()) * maxThickness, 3);
+
+					results[i] = new LineSegment(point, thickness);
+				}
+
+				return results;
 			}
-
-			return results;
 		}
+
+
+		public static class ModulatingRadius
+		{
+			public static LineSegment[] GetLineSegments(Bitmap image, int revolutionCount)
+			{
+				int width = image.Width;
+				int height = image.Height;
+
+				float thickness = 1.0f;
+				float intensityMultiplier = (((width + height) / 2.0f) / (revolutionCount * 2.0f)) * 33.33f;
+
+				int pointCount = (width + height) * (revolutionCount / 2);
+
+				LineSegment[] results = new LineSegment[pointCount];
+
+				float angle, scale;
+				for (int i = 0; i < pointCount; i++)
+				{
+					angle = (float)(i * 2 * Math.PI / (pointCount / revolutionCount));
+					scale = 1 - (float)i / pointCount;
+
+					PointF point = new PointF();
+					point.X = (float)(width / 2 * (1 + scale * Math.Cos(angle)));
+					point.Y = (float)(height / 2 * (1 + scale * Math.Sin(angle)));
+
+					Color pixel = image.GetPixel((int)Math.Min(width - 1, Math.Round(point.X)), (int)Math.Min(height - 1, Math.Round(point.Y)));
+					float intensity = (float)Math.Round((1.0f - pixel.GetBrightness()) * intensityMultiplier, 3);
+
+					// Modulate the scale and angle and recalculate 
+					//angle = (float)(((i * 2 * Math.PI) + intensity) / (pointCount / revolutionCount));
+					scale = 1 - (float)(i + intensity) / pointCount;
+
+					point = new PointF();
+					point.X = (float)(width / 2 * (1 + scale * Math.Cos(angle)));
+					point.Y = (float)(height / 2 * (1 + scale * Math.Sin(angle)));
+
+					results[i] = new LineSegment(point, thickness);
+				}
+
+				return results;
+			}
+		}
+
+		public static class ConstantSpiral
+		{
+			public static LineSegment[] GetLineSegments(Bitmap image, int revolutionCount)
+			{
+				int width = image.Width;
+				int height = image.Height;
+
+				float thickness = 1.0f;
+
+				int pointCount = (width + height) * (revolutionCount / 2);
+
+				LineSegment[] results = new LineSegment[pointCount];
+
+				float angle, scale;
+				for (int i = 0; i < pointCount; i++)
+				{
+					angle = (float)(i * 2 * Math.PI / (pointCount / revolutionCount));
+					scale = 1 - (float)i / pointCount;
+
+					PointF point = new PointF();
+					point.X = (float)(width / 2 * (1 + scale * Math.Cos(angle)));
+					point.Y = (float)(height / 2 * (1 + scale * Math.Sin(angle)));
+
+					results[i] = new LineSegment(point, thickness);
+				}
+
+				return results;
+			}
+		}
+
+
+
 
 		private static Dictionary<float, Pen> _penDictionary = null;
 

@@ -18,7 +18,7 @@ namespace SpiralographizeThatImage
 			InitializeComponent();
 		}
 
-		private void Style2_Shown(object sender, EventArgs e)
+		private void MainForm_Shown(object sender, EventArgs e)
 		{
 			string filename = null;
 			using (OpenFileDialog browseDialog = new OpenFileDialog())
@@ -48,8 +48,13 @@ namespace SpiralographizeThatImage
 			{
 				int revolutionCount = ((_bitmap.Width + _bitmap.Height) / 2) / 10;
 
-				LineSegment[] lineSegments = Spiralographize.GetLineSegments(_bitmap, revolutionCount);
+				LineSegment[] lineSegments = Spiralographize.ModulatingThickness.GetLineSegments(_bitmap, revolutionCount);
 				Spiralographize.DrawSpiral(paintEventArgs.Graphics, lineSegments, Color.Black);
+								
+				/*
+				LineSegment[] lineSegments = Spiralographize.ModulatingRadius.GetLineSegments(_bitmap, revolutionCount);
+				Spiralographize.DrawSpiral(paintEventArgs.Graphics, lineSegments, Color.Black);
+				*/
 
 				source.Image = null;
 			}
