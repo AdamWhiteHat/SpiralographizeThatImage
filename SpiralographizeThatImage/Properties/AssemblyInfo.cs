@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SpiralographizeThatImage")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Draw an image as a single, spiraling line.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("https://github.com/AdamWhiteHat/SpiralographizeThatImage")]
 [assembly: AssemblyProduct("SpiralographizeThatImage")]
-[assembly: AssemblyCopyright("Copyright ©  2023")]
+[assembly: AssemblyCopyright("Copyright © Adam White 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
