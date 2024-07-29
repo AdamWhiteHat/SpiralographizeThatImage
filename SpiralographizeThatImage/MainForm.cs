@@ -8,13 +8,16 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.Drawing.Imaging;
+using System.Linq.Expressions;
+using static SpiralographizeThatImage.Spiralographize;
 
 namespace SpiralographizeThatImage
 {
     public partial class MainForm : Form
     {
-        private bool _isDirty = false;
         private Bitmap _bitmap = null;
+        private bool _isDirty = false;
+        private bool disableEvents = false;
         private string _mostRecentBrowseFolder = @"C:\Temp";
 
         public MainForm()
@@ -24,20 +27,16 @@ namespace SpiralographizeThatImage
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            Bitmap blank = GetBlankImage();
+            Bitmap blank = Renderer.ABlankImage(pictureBox1.Width, pictureBox1.Height);
             pictureBox1.Image = blank;
-            pictureBox1.Enabled = false;
             _isDirty = false;
         }
 
-        private Bitmap GetBlankImage()
+
+        private void SetPictureBox(Bitmap bitmap)
         {
-            Bitmap result = new Bitmap(pictureBox1.Width, pictureBox1.Height);
-            using (Graphics g = Graphics.FromImage(result))
-            {
-                g.Clear(Color.Transparent);
-            }
-            return result;
+            pictureBox1.Image = bitmap;
+            _isDirty = true;
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -59,7 +58,6 @@ namespace SpiralographizeThatImage
             }
 
             _bitmap = new Bitmap(Image.FromFile(filename));
-            pictureBox1.Enabled = true;
             DrawSpiralFromImage(_bitmap);
         }
 
@@ -70,26 +68,48 @@ namespace SpiralographizeThatImage
                 return;
             }
 
+            Size size = new Size(pictureBox1.Width, pictureBox1.Height);
             int revolutionCount = ((bitmap.Width + bitmap.Height) / 2) / 10;
             LineSegment[] lineSegments = new LineSegment[0];
 
             if (byRadiusMenuItem.Checked)
             {
-                lineSegments = Spiralographize.ModulatingRadius.GetLineSegments(_bitmap, revolutionCount);
+                lineSegments = Spiralographize.ModulatingRadius.GetGeometrySegments(bitmap, revolutionCount);
             }
-            else
+            else if (byThicknessMenuItem.Checked)
             {
-                lineSegments = Spiralographize.ModulatingThickness.GetLineSegments(bitmap, revolutionCount);
+                lineSegments = Spiralographize.ModulatingThickness.GetGeometrySegments(bitmap, revolutionCount);
+            }
+            else if (constantSpiralMenuItem.Checked)
+            {
+                lineSegments = Spiralographize.ConstantSpiral.GetGeometrySegments(size, revolutionCount);
+            }
+            else if (goldenRatioMenuItem.Checked)
+            {
+                DrawSpiral();
+                return;
             }
 
-            Bitmap buffer = GetBlankImage();
+            Bitmap buffer = Renderer.ABlankImage(pictureBox1.Width, pictureBox1.Height);
             using (Graphics graphics = Graphics.FromImage(buffer))
             {
-                Spiralographize.DrawSpiral(graphics, lineSegments, Color.Black);
+                Spiralographize.Renderer.ALine.DrawSpiral(graphics, lineSegments, Color.Black);
             }
 
-            pictureBox1.Image = buffer;
-            _isDirty = true;
+            SetPictureBox(buffer);
+        }
+
+        private void DrawSpiral()
+        {
+            if (!goldenRatioMenuItem.Checked)
+            {
+                return;
+            }
+
+            Bitmap buffer = Renderer.ABlankImage(pictureBox1.Width, pictureBox1.Height);
+            SetPictureBox(buffer);
+
+            Spiralographize.GoldenRatioSpiral.Render(pictureBox1);
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -99,15 +119,11 @@ namespace SpiralographizeThatImage
 
         private bool SaveWork()
         {
-            if (!pictureBox1.Enabled || _bitmap == null)
-            {
-                return true;
-            }
-
             string filename = null;
             using (SaveFileDialog saveDialog = new SaveFileDialog())
             {
                 saveDialog.Filter = "Image files (*.bmp;*.png;*.jpg;*.jpeg;*.gif)|*.bmp;*.png;*.jpg;*.jpeg;*.gif|All files (*.*)|*.*";
+                saveDialog.FilterIndex = 0;
                 saveDialog.InitialDirectory = _mostRecentBrowseFolder;
                 saveDialog.DefaultExt = "jpg";
                 saveDialog.AddExtension = true;
@@ -142,7 +158,23 @@ namespace SpiralographizeThatImage
                 format = ImageFormat.Gif;
             }
 
-            pictureBox1.Image.Save(filename, format);
+            if (format == ImageFormat.Png)
+            {
+                pictureBox1.Image.Save(filename, format);
+            }
+            else
+            {
+                Bitmap copy = new Bitmap(pictureBox1.Width, pictureBox1.Height, PixelFormat.Format32bppRgb);
+                using (Graphics g = Graphics.FromImage(copy))
+                {
+                    g.Clear(Color.White);
+                    g.DrawImage(pictureBox1.Image, 0, 0, pictureBox1.Width, pictureBox1.Height);
+                    g.Flush();
+                }
+                copy.Save(filename, format);
+            }
+
+
             _isDirty = false;
             return true;
         }
@@ -163,27 +195,70 @@ namespace SpiralographizeThatImage
             this.Close();
         }
 
-        bool disableEvents = false;
         private void byThicknessMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (!disableEvents)
+            if (disableEvents) return;
+
+            using (new ToggleScope((state) => { disableEvents = state; }))
             {
-                disableEvents = true;
-                byRadiusMenuItem.Checked = !byThicknessMenuItem.Checked;
-                disableEvents = false;
+                byThicknessMenuItem.Checked = true;
+                byRadiusMenuItem.Checked = false;
+                goldenRatioMenuItem.Checked = false;
+                constantSpiralMenuItem.Checked = false;
+
                 DrawSpiralFromImage(_bitmap);
             }
         }
 
         private void byRadiusMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (!disableEvents)
+            if (disableEvents) return;
+
+            using (new ToggleScope((state) => { disableEvents = state; }))
             {
-                disableEvents = true;
-                byThicknessMenuItem.Checked = !byRadiusMenuItem.Checked;
-                disableEvents = false;
+                byRadiusMenuItem.Checked = true;
+                byThicknessMenuItem.Checked = false;
+                goldenRatioMenuItem.Checked = false;
+                constantSpiralMenuItem.Checked = false;
+
                 DrawSpiralFromImage(_bitmap);
             }
         }
+
+        private void constantSpiralMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            if (disableEvents) return;
+
+            using (new ToggleScope((state) => { disableEvents = state; }))
+            {
+                constantSpiralMenuItem.Checked = true;
+                byThicknessMenuItem.Checked = false;
+                byRadiusMenuItem.Checked = false;
+                goldenRatioMenuItem.Checked = false;
+
+                if (_bitmap == null)
+                {
+                    _bitmap = Renderer.ABlankImage(pictureBox1.Width, pictureBox1.Height);
+                }
+
+                DrawSpiralFromImage(_bitmap);
+            }
+        }
+
+        private void goldenRatioMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            if (disableEvents) return;
+
+            using (new ToggleScope((state) => { disableEvents = state; }))
+            {
+                goldenRatioMenuItem.Checked = true;
+                byThicknessMenuItem.Checked = false;
+                byRadiusMenuItem.Checked = false;
+                constantSpiralMenuItem.Checked = false;
+
+                DrawSpiral();
+            }
+        }
+
     }
 }
