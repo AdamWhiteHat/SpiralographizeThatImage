@@ -12,6 +12,7 @@ using System.Security.Policy;
 using System.IO;
 using System.Xml;
 using System.Diagnostics.CodeAnalysis;
+using System.Buffers.Text;
 
 namespace SpiralographizeThatImage
 {
@@ -27,6 +28,59 @@ namespace SpiralographizeThatImage
 
     public static class Spiralographize
     {
+        public enum ImageSpirals
+        {
+            ByRadius,
+            ByThickness
+        }
+
+        public static class Debug
+        {
+            public class Calibration : ISpiralGeometryFactory<LineSegment>
+            {
+                public static LineSegment[] GetGeometrySegments(Bitmap image, int revolutionCount)
+                {
+                    int width = image.Width;
+                    int height = image.Height;
+
+                    float thickness = revolutionCount;
+
+                    List<LineSegment> results = new List<LineSegment>();
+
+                    float offset = revolutionCount*20 + revolutionCount;
+                    float length = 10;
+
+                    float baseX = (float)(width / 2) - offset;
+                    float baseY = (float)(height / 2) - offset;
+
+                    PointF verticalLineStart = new PointF();
+                    verticalLineStart.X = baseX - length;
+                    verticalLineStart.Y = baseY + length;
+
+                    PointF verticalLineEnd = new PointF();
+                    verticalLineEnd.X = baseX - length;
+                    verticalLineEnd.Y = baseY;
+
+                    PointF horizontalLineEnd = new PointF();
+                    horizontalLineEnd.X = baseX;
+                    horizontalLineEnd.Y = baseY;
+
+                    float hypot = (float)Math.Sqrt((length * length) + (length * length));
+
+                    PointF diagonalLineEnd = new PointF();
+                    diagonalLineEnd.X = baseX + hypot;
+                    diagonalLineEnd.Y = baseY + hypot;
+
+                    results.Add(new LineSegment(verticalLineStart, thickness));
+                    results.Add(new LineSegment(verticalLineEnd, thickness));
+                    results.Add(new LineSegment(horizontalLineEnd, thickness));
+                    results.Add(new LineSegment(diagonalLineEnd, thickness));
+
+                    return results.ToArray();
+                }
+            }
+        }
+
         public class ModulatingThickness : ISpiralGeometryFactory<LineSegment>
         {
             public static LineSegment[] GetGeometrySegments(Bitmap image, int revolutionCount)
@@ -35,7 +89,7 @@ namespace SpiralographizeThatImage
                 int height = image.Height;
 
                 float minThickness = 1.0f;
-                float maxThickness = (((width + height) / 2.0f) / (revolutionCount * 2.0f));
+                float maxThickness = (((width + height) / 2.0f) / (revolutionCount * 1.5f));
 
                 int pointCount = (width + height) * (revolutionCount / 2);
 
@@ -139,9 +193,16 @@ namespace SpiralographizeThatImage
 
         public static class GoldenRatioSpiral// : ISpiralGeometryFactory<PointF>
         {
-            private static int Thickness = 1;
+            public enum DrawOrder
+            {
+                BySpiralArm,
+                FromTopToBottom
+            }
+
+            private static float Thickness = 2.5f;
             private static float Phi = (1.0f + (float)Math.Sqrt(5.0f)) / 2.0f;
             private static RenderingTimer Timer = new RenderingTimer();
+            private static DrawOrder drawingOrder = DrawOrder.BySpiralArm;
 
             private static float DegreesToRadians(float rad)
             {
@@ -153,15 +214,16 @@ namespace SpiralographizeThatImage
                 return degrees * (180.0f / (float)Math.PI);
             }
 
-            public static void Render(PictureBox pictureBox)
+            public static void Render(PictureBox pictureBox, DrawOrder drawOrder)
             {
+                drawingOrder = drawOrder;
                 if (!Timer.IsDisposed)
                 {
                     MessageBox.Show(" This control is still busy rendering the last request! Please wait until the control has finished drawing, then try again.", "Too soon!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
-                    Timer = new RenderingTimer(pictureBox);
+                    Timer = new RenderingTimer(pictureBox, 33);
                     Timer.Start();
                 }
             }
@@ -181,9 +243,10 @@ namespace SpiralographizeThatImage
 
                 private int i;
                 private Pen _pen;
-                private Size _size;
+                private SizeF _size;
                 private int totalFrames;
                 private PictureBox pictureBox;
+                private Graphics _graphics;
 
                 public List<Point> PointLocations;
 
@@ -197,7 +260,7 @@ namespace SpiralographizeThatImage
                     pictureBox = null;
                 }
 
-                public RenderingTimer(PictureBox control, float frameRateFPS = 120f)
+                public RenderingTimer(PictureBox control, float frameRateFPS = 520f)
                 {
                     IsDisposed = false;
 
@@ -215,10 +278,13 @@ namespace SpiralographizeThatImage
                     };
                     timer.Tick += Tick;
 
-                    _pen = PenCache.GetBlackPen(Thickness + 1);
-                    _size = new Size(Thickness, Thickness);
+                    _pen = PenCache.GetPen(Color.Black, Thickness + 1);
+                    _size = new SizeF(Thickness, Thickness);
 
                     PointLocations = new List<Point>();
+
+                    _graphics = pictureBox.CreateGraphics();
+                    //Graphics graphics = Graphics.FromImage(pictureBox.Image))         
                 }
 
                 public void Dispose()
@@ -226,14 +292,19 @@ namespace SpiralographizeThatImage
                     if (!IsDisposed)
                     {
                         IsDisposed = true;
-                    }
-                    if (timer != null)
-                    {
-                        if (timer.Enabled)
+
+                        if (timer != null)
                         {
-                            timer.Stop();
+                            if (timer.Enabled)
+                            {
+                                timer.Stop();
+                            }
+                            timer.Dispose();
                         }
-                        timer.Dispose();
+
+                        _graphics.Dispose();
+                        _pen.Dispose();
+                        pictureBox = null;
                     }
                 }
 
@@ -244,17 +315,67 @@ namespace SpiralographizeThatImage
                         return;
                     }
 
-                    int n = 0;
+                    int n = totalFrames - 1;
                     PointLocations = new List<Point>();
                     do
                     {
                         PointLocations.Add(CalculatePointLocation(n));
-                        n++;
+                        n--;
                     }
-                    while (n < totalFrames);
+                    while (n >= 0);
+
+                    if (drawingOrder == DrawOrder.BySpiralArm)
+                    {
+                        PointLocations = ReorderGoldenRatioPoints_BySpiralArms(PointLocations);
+                    }
+                    else if (drawingOrder == DrawOrder.FromTopToBottom)
+                    {
+                        PointLocations = ReorderGoldenRatioPoints_ByTopToBottom(PointLocations);
+                    }
 
                     i = 0;
                     timer.Start();
+                }
+
+                private static string GoldenRatioPointFile_TopToBottom = "GoldenRatio_PointLocations_OrderBy-TopToBottom.txt";
+                private static string GoldenRatioPointFile_SpiralArms = "GoldenRatio_PointLocations_OrderBy-SpiralArms.txt";
+                private List<Point> ReorderGoldenRatioPoints_BySpiralArms(List<Point> points)
+                {
+                    int n = 0;
+                    Dictionary<int, List<Point>> bucketsDictionary = new Dictionary<int, List<Point>>();
+                    foreach (Point location in points)
+                    {
+                        int key = n % 34;
+                        if (!bucketsDictionary.ContainsKey(key))
+                        {
+                            bucketsDictionary.Add(key, new List<Point>());
+                        }
+
+                        List<Point> bucket = bucketsDictionary[key];
+                        bucket.Add(location);
+                        //bucketsDictionary[key] = bucket;
+
+                        n++;
+                    }
+
+                    File.WriteAllText(GoldenRatioPointFile_SpiralArms, "");
+                    List<Point> results = new List<Point>();
+                    foreach (var kvp in bucketsDictionary)
+                    {
+                        results.AddRange(kvp.Value);
+                        File.AppendAllText(GoldenRatioPointFile_SpiralArms, string.Join(Environment.NewLine, kvp.Value.Select(p => $"{p.X},{p.Y}")));
+                        File.AppendAllText(GoldenRatioPointFile_SpiralArms, Environment.NewLine + Environment.NewLine);
+                    }
+
+                    return results;
+                }
+
+                private List<Point> ReorderGoldenRatioPoints_ByTopToBottom(List<Point> points)
+                {
+                    List<Point> results = points.OrderBy(pt => pt.Y).ThenBy(pt => pt.X).ToList();
+
+                    File.WriteAllLines(GoldenRatioPointFile_TopToBottom, results.Select(p => $"{p.X},{p.Y}"));
+                    return results;
                 }
 
                 public void Tick(object source, EventArgs e)
@@ -287,19 +408,16 @@ namespace SpiralographizeThatImage
                     result.X = (int)Math.Round((float)pictureBox.Width / 2f * (1f + scale * (float)Math.Cos(angle)));
                     result.Y = (int)Math.Round((float)pictureBox.Height / 2f * (1f + scale * (float)Math.Sin(angle)));
 
+                    result.X = pictureBox.Width - result.X;
+
                     return result;
                 }
 
                 private void RenderFrame(Point location)
                 {
-                    Bitmap copy = new Bitmap(pictureBox.Image);
-                    using (Graphics graphics = Graphics.FromImage(copy))
-                    {
-                        Rectangle rect = new Rectangle(location, _size);
-                        graphics.DrawEllipse(_pen, rect);
-                        graphics.Flush();
-                    }
-                    pictureBox.Image = copy;
+                    RectangleF rect = new RectangleF(location, _size);
+                    _graphics.DrawEllipse(_pen, rect);
+                    _graphics.Flush();
                 }
             }
         }
@@ -307,56 +425,33 @@ namespace SpiralographizeThatImage
 
         public static class PenCache
         {
-            private static Dictionary<float, Pen> _blackPenDictionary = null;
             private static Dictionary<Tuple<Color, float>, Pen> _penDictionary = null;
 
             static PenCache()
             {
-                _blackPenDictionary = new Dictionary<float, Pen>();
                 _penDictionary = new Dictionary<Tuple<Color, float>, Pen>(new ColorFloatTupleEqualityComparer());
-            }
-
-            public static Pen GetBlackPen(float thickness)
-            {
-                if (_blackPenDictionary == null)
-                {
-                    _blackPenDictionary = new Dictionary<float, Pen>();
-                }
-
-                Pen result = null;
-                if (_blackPenDictionary.ContainsKey(thickness))
-                {
-                    result = _blackPenDictionary[thickness];
-                }
-                else
-                {
-                    result = new Pen(Color.Black, thickness);
-                    _blackPenDictionary.Add(thickness, result);
-                }
-                return result;
             }
 
             public static Pen GetPen(Color color, float thickness)
             {
-                if (color == Color.Black)
+                Tuple<Color, float> key = new Tuple<Color, float>(color, thickness);
+
+                if (_penDictionary.ContainsKey(key))
                 {
-                    return PenCache.GetBlackPen(thickness);
+                    return _penDictionary[key];
                 }
                 else
                 {
-                    Tuple<Color, float> key = new Tuple<Color, float>(color, thickness);
+                    Pen result = new Pen(color, thickness);
+                    result.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+                    result.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                    result.MiterLimit = thickness;
+                    result.Alignment = System.Drawing.Drawing2D.PenAlignment.Center;
 
-                    if (_penDictionary.ContainsKey(key))
-                    {
-                        return _penDictionary[key];
-                    }
-                    else
-                    {
-                        Pen value = new Pen(color, thickness);
-                        _penDictionary.Add(key, value);
-                        return value;
-                    }
+                    _penDictionary.Add(key, result);
+                    return result;
                 }
+
             }
 
             public class ColorFloatTupleEqualityComparer : IEqualityComparer<Tuple<Color, float>>
@@ -398,24 +493,24 @@ namespace SpiralographizeThatImage
             {
                 public static void DrawPoint(Graphics graphics, PointF location, int thickness)
                 {
-                    graphics.DrawEllipse(PenCache.GetBlackPen(thickness), new System.Drawing.Rectangle(new Point((int)Math.Round(location.X), (int)Math.Round(location.Y)), new Size(thickness, thickness)));
+                    graphics.DrawEllipse(PenCache.GetPen(Color.Black, thickness), new System.Drawing.Rectangle(new Point((int)Math.Round(location.X), (int)Math.Round(location.Y)), new Size(thickness, thickness)));
                 }
 
                 public static void DrawSpiral(Graphics graphics, LineSegment[] geometrySegments, Color color)
                 {
                     Pen pen = null;
                     PointF previousPoint = PointF.Empty;
+
+                    float currentThickness = -1f;
+
                     foreach (LineSegment segment in geometrySegments)
                     {
                         PointF currentPoint = segment.Point;
 
-                        if (color == Color.Black)
+                        if (currentThickness != segment.Thickness)
                         {
-                            pen = PenCache.GetBlackPen(segment.Thickness);
-                        }
-                        else
-                        {
-                            pen = new Pen(color, segment.Thickness);
+                            pen = PenCache.GetPen(color, segment.Thickness);
+                            currentThickness = segment.Thickness;
                         }
 
                         if (previousPoint != PointF.Empty)
@@ -434,7 +529,6 @@ namespace SpiralographizeThatImage
 
                 public static void DrawSpiral(Graphics graphics, PointF[] geometrySegments, Color color, float thickness = 1)
                 {
-
                     if (_pen == null)
                     {
                         _pen = new Pen(color, thickness);
