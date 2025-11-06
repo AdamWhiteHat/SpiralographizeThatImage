@@ -10,16 +10,6 @@ namespace SpiralographizeThatImage.Factories
     {
         public static double Phi = (1.0d + Math.Sqrt(5.0d)) / 2.0d;
 
-        private static float DegreesToRadians(float rad)
-        {
-            return rad * ((float)Math.PI / 180.0f);
-        }
-
-        private static float RadiansToDegrees(float degrees)
-        {
-            return degrees * (180.0f / (float)Math.PI);
-        }
-
         public static PointF[] GetGeometryElements(Size size, int pointQuantity, DrawOrder drawOrder)
         {
             PointF[] results = GetGeometryElements(size, pointQuantity);

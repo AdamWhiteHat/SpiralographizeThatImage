@@ -12,8 +12,6 @@ namespace SpiralographizeThatImage.Factories
         {
             int width = image.Width;
             int height = image.Height;
-
-            float minThickness = 1.0f;
             //float maxThickness = 2.0f;//(((width + height) / 2.0f) / (revolutionCount * 2.0f));
 
             int pointCount = (width + height) * (revolutionCount / 2);
