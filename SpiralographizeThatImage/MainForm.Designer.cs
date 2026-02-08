@@ -75,11 +75,11 @@ namespace SpiralographizeThatImage
             pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             pictureBox1.ContextMenuStrip = contextMenuStrip1;
             pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            pictureBox1.Location = new System.Drawing.Point(0, 24);
+            pictureBox1.Location = new System.Drawing.Point(0, 25);
             pictureBox1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 10);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 10);
-            pictureBox1.Size = new System.Drawing.Size(750, 750);
+            pictureBox1.Size = new System.Drawing.Size(750, 749);
             pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
@@ -89,12 +89,12 @@ namespace SpiralographizeThatImage
             // 
             contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { saveImageToolStripMenuItem1 });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new System.Drawing.Size(144, 26);
+            contextMenuStrip1.Size = new System.Drawing.Size(153, 26);
             // 
             // saveImageToolStripMenuItem1
             // 
             saveImageToolStripMenuItem1.Name = "saveImageToolStripMenuItem1";
-            saveImageToolStripMenuItem1.Size = new System.Drawing.Size(143, 22);
+            saveImageToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             saveImageToolStripMenuItem1.Text = "&Save Image...";
             saveImageToolStripMenuItem1.Click += saveImageMenuItem_Click;
             // 
@@ -106,7 +106,7 @@ namespace SpiralographizeThatImage
             menuStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             menuStrip.Location = new System.Drawing.Point(0, 0);
             menuStrip.Name = "menuStrip";
-            menuStrip.Size = new System.Drawing.Size(750, 24);
+            menuStrip.Size = new System.Drawing.Size(750, 25);
             menuStrip.TabIndex = 1;
             menuStrip.Text = "menuStrip1";
             // 
@@ -114,25 +114,25 @@ namespace SpiralographizeThatImage
             // 
             fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { saveImageToolStripMenuItem, toolStripSeparator2, closeToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            fileToolStripMenuItem.Size = new System.Drawing.Size(39, 21);
             fileToolStripMenuItem.Text = "&File";
             // 
             // saveImageToolStripMenuItem
             // 
             saveImageToolStripMenuItem.Name = "saveImageToolStripMenuItem";
-            saveImageToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            saveImageToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             saveImageToolStripMenuItem.Text = "&Save Image...";
             saveImageToolStripMenuItem.Click += saveImageMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new System.Drawing.Size(140, 6);
+            toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
             // 
             // closeToolStripMenuItem
             // 
             closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            closeToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
+            closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             closeToolStripMenuItem.Text = "&Close";
             closeToolStripMenuItem.Click += closeToolStripMenuItem_Click;
             // 
@@ -140,13 +140,13 @@ namespace SpiralographizeThatImage
             // 
             optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { loadImageToolStripMenuItem, byThicknessMenuItem, byRadiusMenuItem });
             optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            optionsToolStripMenuItem.Size = new System.Drawing.Size(89, 20);
+            optionsToolStripMenuItem.Size = new System.Drawing.Size(99, 21);
             optionsToolStripMenuItem.Text = "&Image Spirals";
             // 
             // loadImageToolStripMenuItem
             // 
             loadImageToolStripMenuItem.Name = "loadImageToolStripMenuItem";
-            loadImageToolStripMenuItem.Size = new System.Drawing.Size(268, 22);
+            loadImageToolStripMenuItem.Size = new System.Drawing.Size(287, 22);
             loadImageToolStripMenuItem.Text = "&Load Image...";
             loadImageToolStripMenuItem.Click += loadImageToolStripMenuItem_Click;
             // 
@@ -157,7 +157,7 @@ namespace SpiralographizeThatImage
             byThicknessMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             byThicknessMenuItem.Enabled = false;
             byThicknessMenuItem.Name = "byThicknessMenuItem";
-            byThicknessMenuItem.Size = new System.Drawing.Size(268, 22);
+            byThicknessMenuItem.Size = new System.Drawing.Size(287, 22);
             byThicknessMenuItem.Text = "Image by Line Thickness Modulation";
             byThicknessMenuItem.CheckedChanged += byThicknessMenuItem_CheckedChanged;
             // 
@@ -166,7 +166,7 @@ namespace SpiralographizeThatImage
             byRadiusMenuItem.CheckOnClick = true;
             byRadiusMenuItem.Enabled = false;
             byRadiusMenuItem.Name = "byRadiusMenuItem";
-            byRadiusMenuItem.Size = new System.Drawing.Size(268, 22);
+            byRadiusMenuItem.Size = new System.Drawing.Size(287, 22);
             byRadiusMenuItem.Text = "Image by Line Radius Modulating";
             byRadiusMenuItem.CheckedChanged += byRadiusMenuItem_CheckedChanged;
             // 
@@ -174,14 +174,14 @@ namespace SpiralographizeThatImage
             // 
             constantSpiralsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { constantSpiralMenuItem, goldenRatioMenuItem });
             constantSpiralsToolStripMenuItem.Name = "constantSpiralsToolStripMenuItem";
-            constantSpiralsToolStripMenuItem.Size = new System.Drawing.Size(104, 20);
+            constantSpiralsToolStripMenuItem.Size = new System.Drawing.Size(114, 21);
             constantSpiralsToolStripMenuItem.Text = "Constant Spirals";
             // 
             // constantSpiralMenuItem
             // 
             constantSpiralMenuItem.CheckOnClick = true;
             constantSpiralMenuItem.Name = "constantSpiralMenuItem";
-            constantSpiralMenuItem.Size = new System.Drawing.Size(180, 22);
+            constantSpiralMenuItem.Size = new System.Drawing.Size(189, 22);
             constantSpiralMenuItem.Text = "Common Spiral";
             constantSpiralMenuItem.CheckedChanged += constantSpiralMenuItem_CheckedChanged;
             // 
@@ -190,7 +190,7 @@ namespace SpiralographizeThatImage
             goldenRatioMenuItem.CheckOnClick = true;
             goldenRatioMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { orderbySpiralArms, orderbyTopToBottom });
             goldenRatioMenuItem.Name = "goldenRatioMenuItem";
-            goldenRatioMenuItem.Size = new System.Drawing.Size(180, 22);
+            goldenRatioMenuItem.Size = new System.Drawing.Size(189, 22);
             goldenRatioMenuItem.Text = "Golden Ratio Spiral";
             goldenRatioMenuItem.CheckStateChanged += goldenRatioMenuItem_CheckStateChanged;
             // 
@@ -198,7 +198,7 @@ namespace SpiralographizeThatImage
             // 
             orderbySpiralArms.CheckOnClick = true;
             orderbySpiralArms.Name = "orderbySpiralArms";
-            orderbySpiralArms.Size = new System.Drawing.Size(180, 22);
+            orderbySpiralArms.Size = new System.Drawing.Size(191, 22);
             orderbySpiralArms.Text = "Spiral Arm Ordered";
             orderbySpiralArms.CheckStateChanged += orderbySpiralArms_CheckedChanged;
             // 
@@ -206,7 +206,7 @@ namespace SpiralographizeThatImage
             // 
             orderbyTopToBottom.CheckOnClick = true;
             orderbyTopToBottom.Name = "orderbyTopToBottom";
-            orderbyTopToBottom.Size = new System.Drawing.Size(180, 22);
+            orderbyTopToBottom.Size = new System.Drawing.Size(191, 22);
             orderbyTopToBottom.Text = "Top Down Ordered";
             orderbyTopToBottom.CheckStateChanged += orderbyTopToBottom_CheckedChanged;
             // 
@@ -235,7 +235,7 @@ namespace SpiralographizeThatImage
             toolStripStatusSize.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
             toolStripStatusSize.Padding = new System.Windows.Forms.Padding(20, 0, 20, 0);
             toolStripStatusSize.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            toolStripStatusSize.Size = new System.Drawing.Size(109, 25);
+            toolStripStatusSize.Size = new System.Drawing.Size(122, 25);
             toolStripStatusSize.Text = "750 x 750 px";
             toolStripStatusSize.ToolTipText = "Image Dimensions";
             // 
@@ -247,7 +247,7 @@ namespace SpiralographizeThatImage
             toolStripStatuxZoom.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
             toolStripStatuxZoom.Padding = new System.Windows.Forms.Padding(20, 0, 20, 0);
             toolStripStatuxZoom.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            toolStripStatuxZoom.Size = new System.Drawing.Size(79, 25);
+            toolStripStatuxZoom.Size = new System.Drawing.Size(84, 25);
             toolStripStatuxZoom.Text = "100%";
             toolStripStatuxZoom.ToolTipText = "Image Zoom";
             // 
@@ -271,7 +271,7 @@ namespace SpiralographizeThatImage
             // 
             toolStripLabelTickness.Margin = new System.Windows.Forms.Padding(10, 0, 2, 0);
             toolStripLabelTickness.Name = "toolStripLabelTickness";
-            toolStripLabelTickness.Size = new System.Drawing.Size(84, 25);
+            toolStripLabelTickness.Size = new System.Drawing.Size(90, 25);
             toolStripLabelTickness.Text = "Line thickness:";
             toolStripLabelTickness.ToolTipText = "Pen/Stroke Thickness";
             // 
@@ -281,7 +281,7 @@ namespace SpiralographizeThatImage
             toolStripTextBoxThickness.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             toolStripTextBoxThickness.Name = "toolStripTextBoxThickness";
             toolStripTextBoxThickness.Size = new System.Drawing.Size(50, 25);
-            toolStripTextBoxThickness.Text = "1.0";
+            toolStripTextBoxThickness.Text = "2.0";
             toolStripTextBoxThickness.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             toolStripTextBoxThickness.ToolTipText = "Pen/Stroke Thickness";
             toolStripTextBoxThickness.TextChanged += toolStripTextBoxThickness_TextChanged;
@@ -297,7 +297,7 @@ namespace SpiralographizeThatImage
             toolStripLabelTurns.ActiveLinkColor = System.Drawing.Color.RosyBrown;
             toolStripLabelTurns.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             toolStripLabelTurns.Name = "toolStripLabelTurns";
-            toolStripLabelTurns.Size = new System.Drawing.Size(61, 25);
+            toolStripLabelTurns.Size = new System.Drawing.Size(68, 25);
             toolStripLabelTurns.Text = "# of turns:";
             toolStripLabelTurns.ToolTipText = "# of Spiral Turns";
             // 
